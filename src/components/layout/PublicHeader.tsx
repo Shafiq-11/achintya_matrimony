@@ -19,14 +19,6 @@ export function PublicHeader({
           <span>{businessName}</span>
         </Link>
 
-        <nav className="public-nav">
-          <Link href="/" className="nav-link">
-            Home
-          </Link>
-          <Link href="/contact" className="nav-link">
-            Contact
-          </Link>
-        </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <a

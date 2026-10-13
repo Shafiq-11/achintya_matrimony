@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 interface PublicFooterProps {
   businessName?: string;
   businessPhone?: string;
@@ -28,12 +26,6 @@ export function PublicFooter({
         </p>
 
         <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.875rem' }}>
-          <Link href="/" className="nav-link">
-            Home
-          </Link>
-          <Link href="/contact" className="nav-link">
-            Contact
-          </Link>
           <a href={`tel:${businessPhone.replace(/[^0-9+]/g, '')}`} className="nav-link">
             Helpdesk: {businessPhone}
           </a>
