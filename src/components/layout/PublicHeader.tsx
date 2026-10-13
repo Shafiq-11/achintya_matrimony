@@ -23,14 +23,8 @@ export function PublicHeader({
           <Link href="/" className="nav-link">
             Home
           </Link>
-          <Link href="/register" className="nav-link">
-            Register
-          </Link>
           <Link href="/contact" className="nav-link">
             Contact
-          </Link>
-          <Link href="/privacy" className="nav-link">
-            Privacy Policy
           </Link>
         </nav>
 
@@ -42,13 +36,6 @@ export function PublicHeader({
           >
             📞 Call Now
           </a>
-          <Link
-            href="/login"
-            className="btn btn-outline btn-sm"
-            title="Administrator Login"
-          >
-            Admin Login
-          </Link>
         </div>
       </div>
     </header>

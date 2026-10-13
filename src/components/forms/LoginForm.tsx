@@ -68,7 +68,7 @@ export function LoginForm() {
           required
           autoComplete="email"
           className="form-input"
-          placeholder="admin@achintyamatrimony.com"
+          placeholder="admin@achintyamatrimony.test"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={isLoading}

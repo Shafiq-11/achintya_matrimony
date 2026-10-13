@@ -28,14 +28,11 @@ export function PublicFooter({
         </p>
 
         <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.875rem' }}>
-          <Link href="/register" className="nav-link">
-            Registration
+          <Link href="/" className="nav-link">
+            Home
           </Link>
           <Link href="/contact" className="nav-link">
-            Contact Us
-          </Link>
-          <Link href="/privacy" className="nav-link">
-            Privacy Policy
+            Contact
           </Link>
           <a href={`tel:${businessPhone.replace(/[^0-9+]/g, '')}`} className="nav-link">
             Helpdesk: {businessPhone}

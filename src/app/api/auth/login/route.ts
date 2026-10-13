@@ -58,17 +58,31 @@ export async function POST(request: Request) {
         redirectTo: '/admin',
       });
     } else {
-      // Development mode fallback when Supabase credentials are not yet set
-      console.warn(
-        '[Dev Auth Mode] Supabase credentials not set in .env.local. Authenticating in dev mode.'
-      );
-      response.cookies.set('dev_admin_session', 'authenticated_admin', {
+      // Development mode server-side authentication using local environment variables
+      const devAdminEmail = (process.env.DEV_ADMIN_EMAIL || 'admin@achintyamatrimony.test').trim().toLowerCase();
+      const devAdminPassword = process.env.DEV_ADMIN_PASSWORD;
+
+      if (!devAdminPassword || email.trim().toLowerCase() !== devAdminEmail || password !== devAdminPassword) {
+        return NextResponse.json(
+          { error: 'Invalid email or password.' },
+          { status: 401 }
+        );
+      }
+
+      const devResponse = NextResponse.json({
+        success: true,
+        user: { id: 'dev-admin-user', email: devAdminEmail },
+        redirectTo: '/admin',
+      });
+
+      devResponse.cookies.set('dev_admin_session', 'authenticated_admin', {
         path: '/',
         httpOnly: true,
+        sameSite: 'lax',
         maxAge: 60 * 60 * 24, // 1 day
       });
 
-      return response;
+      return devResponse;
     }
   } catch (err: unknown) {
     console.error('Login error:', err);
