@@ -6,19 +6,6 @@ export default function HomePage() {
       <div className="container">
         {/* Hero Section */}
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto' }}>
-          <div
-            className="badge badge-primary"
-            style={{
-              marginBottom: '1.25rem',
-              padding: '0.4rem 1rem',
-              fontSize: '0.8125rem',
-              backgroundColor: 'var(--color-primary-light)',
-              color: 'var(--color-primary)',
-              borderColor: 'var(--color-primary-subtle)',
-            }}
-          >
-            💍 Trusted Family-Oriented Matchmaking
-          </div>
 
           <h1
             style={{
