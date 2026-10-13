@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LogoutButton } from '@/components/layout/LogoutButton';
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -51,13 +52,18 @@ export function AdminSidebar() {
         <div style={{ marginBottom: '0.75rem', color: '#a39c94' }}>
           Signed in as Administrator
         </div>
-        <Link
-          href="/"
-          className="btn btn-outline btn-sm"
-          style={{ width: '100%', borderColor: '#3a3532', color: '#d1cbc4' }}
-        >
-          🌐 View Public Site
-        </Link>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <Link
+            href="/"
+            className="btn btn-outline btn-sm"
+            style={{ width: '100%', borderColor: '#3a3532', color: '#d1cbc4' }}
+          >
+            🌐 View Public Site
+          </Link>
+          <LogoutButton
+            style={{ width: '100%', borderColor: '#4a2527', color: '#fca5a5' }}
+          />
+        </div>
       </div>
     </aside>
   );

@@ -1,5 +1,7 @@
 'use client';
 
+import { LogoutButton } from '@/components/layout/LogoutButton';
+
 interface AdminTopBarProps {
   title: string;
   subtitle?: string;
@@ -19,8 +21,9 @@ export function AdminTopBar({ title, subtitle }: AdminTopBarProps) {
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
         <span className="badge badge-active">Admin Session</span>
+        <LogoutButton />
       </div>
     </header>
   );

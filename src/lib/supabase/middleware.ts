@@ -1,49 +1,68 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
+  let response = NextResponse.next({
     request,
   });
+
+  const pathname = request.nextUrl.pathname;
+  const isAccessingAdmin = pathname.startsWith('/admin');
+  const isAccessingLogin = pathname === '/login';
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return supabaseResponse;
+  const isSupabaseConfigured =
+    !!supabaseUrl &&
+    !!supabaseAnonKey &&
+    !supabaseUrl.includes('placeholder') &&
+    !supabaseUrl.includes('your-project-ref');
+
+  let isAuthenticated = false;
+
+  if (isSupabaseConfigured) {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          response = NextResponse.next({
+            request,
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
+    });
+
+    const { data } = await supabase.auth.getUser();
+    isAuthenticated = !!data.user;
+  } else {
+    // Development fallback check when credentials are not yet configured in .env.local
+    const devCookie = request.cookies.get('dev_admin_session');
+    isAuthenticated = !!devCookie && devCookie.value === 'authenticated_admin';
   }
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value)
-        );
-        supabaseResponse = NextResponse.next({
-          request,
-        });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options)
-        );
-      },
-    },
-  });
-
-  // Do not run on static assets or public api routes
-  const user = await supabase.auth.getUser();
-
-  // Route protection placeholder:
-  // If attempting to access /admin routes without an authenticated session, redirect to /login
-  const isAccessingAdmin = request.nextUrl.pathname.startsWith('/admin');
-  if (isAccessingAdmin && user.error) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('redirectTo', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+  // 1. Guard protected admin routes
+  if (isAccessingAdmin && !isAuthenticated) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/login';
+    redirectUrl.searchParams.set('redirectTo', pathname);
+    return NextResponse.redirect(redirectUrl);
   }
 
-  return supabaseResponse;
+  // 2. Redirect logged-in admin away from /login to /admin
+  if (isAccessingLogin && isAuthenticated) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/admin';
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  return response;
 }
