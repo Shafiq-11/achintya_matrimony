@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { devSampleMembers } from '@/lib/data/devSamples';
+import { devSampleMembers, devSampleNotes, devSampleFollowUps } from '@/lib/data/devSamples';
 
 export async function GET(
   request: Request,
@@ -55,30 +55,14 @@ export async function GET(
         return NextResponse.json({ error: 'Member not found.' }, { status: 404 });
       }
 
+      const memberNotes = devSampleNotes.filter((n) => n.member_id === member.id);
+      const memberTasks = devSampleFollowUps.filter((t) => t.member_id === member.id);
+
       return NextResponse.json({
         success: true,
         member,
-        notes: [
-          {
-            id: 'note-1',
-            member_id: member.id,
-            content: 'Spoke with candidate and parents. Very receptive to referral introductions.',
-            author_email: 'admin@achintyamatrimony.com',
-            created_at: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(),
-          },
-        ],
-        followUps: [
-          {
-            id: 'task-1',
-            member_id: member.id,
-            scheduled_date: new Date().toISOString().split('T')[0],
-            scheduled_time: '15:00:00',
-            reason: 'Introductory follow-up call regarding horoscope and partner expectations.',
-            status: 'pending',
-            created_at: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        ],
+        notes: memberNotes,
+        followUps: memberTasks,
       });
     }
   } catch (err: unknown) {

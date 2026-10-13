@@ -1,7 +1,7 @@
-import type { Member } from '@/lib/types';
+import type { Member, Note, FollowUpTask } from '@/lib/types';
 
-// Mock initial data used strictly in local development before Supabase project is connected
-export const devSampleMembers: Member[] = [
+// Mock initial members used strictly in local development before Supabase project is connected
+const initialMembers: Member[] = [
   {
     id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
     reg_id: 'AM-1001',
@@ -81,3 +81,79 @@ export const devSampleMembers: Member[] = [
     updated_at: new Date().toISOString(),
   },
 ];
+
+// Mock in-memory notes store for development
+const initialNotes: Note[] = [
+  {
+    id: 'note-101',
+    member_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    content: 'Spoke with candidate and father. Looking for grooms based in Pune or Mumbai. Vegetarian preference.',
+    author_email: 'admin@achintyamatrimony.com',
+    created_at: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'note-102',
+    member_id: 'c9b1b220-3b4e-4b71-923b-12d4a6e8b012',
+    content: 'Introductory call completed. Candidate is open to relocate if matching opportunity exists.',
+    author_email: 'admin@achintyamatrimony.com',
+    created_at: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+// Mock in-memory follow-up callbacks store for development
+const initialFollowUps: FollowUpTask[] = [
+  {
+    id: 'task-101',
+    member_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    scheduled_date: new Date().toISOString().split('T')[0], // Due Today
+    scheduled_time: '15:30:00',
+    reason: 'Follow-up regarding shortlist proposals sent via WhatsApp.',
+    status: 'pending',
+    author_email: 'admin@achintyamatrimony.com',
+    created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'task-102',
+    member_id: 'c9b1b220-3b4e-4b71-923b-12d4a6e8b012',
+    scheduled_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Upcoming tomorrow
+    scheduled_time: '11:00:00',
+    reason: 'Call to review feedback on candidate profiles shared yesterday.',
+    status: 'pending',
+    author_email: 'admin@achintyamatrimony.com',
+    created_at: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'task-103',
+    member_id: '8a9c3d4e-5f60-7a8b-9c0d-1e2f3a4b5c6d',
+    scheduled_date: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().split('T')[0], // Upcoming in 2 days
+    scheduled_time: '17:00:00',
+    reason: 'Schedule discussion with family elders regarding horoscope compatibility.',
+    status: 'pending',
+    author_email: 'admin@achintyamatrimony.com',
+    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+];
+
+// Attach to globalThis so all Next.js route chunks share the single authoritative state in dev
+const globalDevStore = globalThis as unknown as {
+  __devSampleMembers?: Member[];
+  __devSampleNotes?: Note[];
+  __devSampleFollowUps?: FollowUpTask[];
+};
+
+if (!globalDevStore.__devSampleMembers) {
+  globalDevStore.__devSampleMembers = [...initialMembers];
+}
+if (!globalDevStore.__devSampleNotes) {
+  globalDevStore.__devSampleNotes = [...initialNotes];
+}
+if (!globalDevStore.__devSampleFollowUps) {
+  globalDevStore.__devSampleFollowUps = [...initialFollowUps];
+}
+
+export const devSampleMembers = globalDevStore.__devSampleMembers;
+export const devSampleNotes = globalDevStore.__devSampleNotes;
+export const devSampleFollowUps = globalDevStore.__devSampleFollowUps;

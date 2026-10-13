@@ -49,7 +49,16 @@ export async function updateSession(request: NextRequest) {
     isAuthenticated = !!devCookie && devCookie.value === 'authenticated_admin';
   }
 
-  // 1. Guard protected admin routes
+  // 1. Guard protected admin API routes
+  const isAccessingAdminApi = pathname.startsWith('/api/admin');
+  if (isAccessingAdminApi && !isAuthenticated) {
+    return NextResponse.json(
+      { error: 'Unauthorized: Admin authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  // 2. Guard protected admin pages
   if (isAccessingAdmin && !isAuthenticated) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/login';
