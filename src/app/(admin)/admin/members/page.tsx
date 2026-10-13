@@ -1,19 +1,24 @@
+import { Suspense } from 'react';
 import { AdminTopBar } from '@/components/layout/AdminTopBar';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { MemberListTable } from '@/components/members/MemberListTable';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
-export default function AdminMembersPlaceholderPage() {
+export const metadata = {
+  title: 'All Members Directory | Achintya Matrimony CRM',
+  description: 'Search, filter, sort, and manage candidate matrimonial profiles.',
+};
+
+export default function AdminMembersPage() {
   return (
     <>
       <AdminTopBar
-        title="All Members"
-        subtitle="Search, filter, and manage matrimony member records"
+        title="Member Directory"
+        subtitle="Search, filter, and manage candidate records with quick WhatsApp & follow-up actions"
       />
       <div className="admin-content">
-        <EmptyState
-          icon="👥"
-          title="Member Directory Module"
-          description="Full searchable member table, status filters, date sorting, profile viewing, editing, notes, follow-up scheduling, and Excel export will be integrated in Phase 04 and Phase 05."
-        />
+        <Suspense fallback={<LoadingSpinner label="Loading member directory..." />}>
+          <MemberListTable />
+        </Suspense>
       </div>
     </>
   );
