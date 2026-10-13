@@ -1,67 +1,202 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
-export default function RegistrationSuccessPlaceholderPage() {
+export const metadata = {
+  title: 'Registration Confirmation | Achintya Matrimony',
+  description: 'Your matrimonial registration has been recorded successfully.',
+};
+
+async function SuccessDetails({
+  searchParams,
+}: {
+  searchParams: Promise<{ regId?: string; name?: string }>;
+}) {
+  const params = await searchParams;
+  const regId = params.regId || 'AM-CONFIRMED';
+  const name = params.name || 'Member';
+
+  const businessPhone = '+919876543210';
+  const cleanPhone = businessPhone.replace(/[^0-9+]/g, '');
+  const whatsAppMessage = encodeURIComponent(
+    `Hello Achintya Matrimony, I have submitted my registration form (Registration ID: ${regId}, Name: ${name}). Please assist me with the next steps.`
+  );
+  const whatsAppLink = `https://wa.me/${cleanPhone.replace('+', '')}?text=${whatsAppMessage}`;
+
   return (
-    <div style={{ padding: '4rem 0' }}>
+    <>
+      <h1
+        style={{
+          fontFamily: 'var(--font-serif)',
+          fontSize: '2.25rem',
+          color: 'var(--color-primary)',
+          marginBottom: '0.75rem',
+        }}
+      >
+        Thank You, {name}!
+      </h1>
+
+      <p
+        style={{
+          color: 'var(--color-text-muted)',
+          fontSize: '1.0625rem',
+          lineHeight: 1.6,
+          maxWidth: '540px',
+          margin: '0 auto 2rem',
+        }}
+      >
+        Your matrimonial profile has been securely recorded in our private CRM system. Our matchmaking counselors will review your preferences and initiate contact shortly.
+      </p>
+
+      {/* Registration Reference Card */}
+      <div
+        style={{
+          backgroundColor: 'var(--color-surface-alt)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.5rem',
+          maxWidth: '400px',
+          margin: '0 auto 2.5rem',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            color: 'var(--color-text-muted)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: '0.375rem',
+          }}
+        >
+          Unique Registration ID
+        </div>
+        <div
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '2rem',
+            fontWeight: 800,
+            color: 'var(--color-primary)',
+            letterSpacing: '0.05em',
+          }}
+        >
+          {regId}
+        </div>
+        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: '0.375rem' }}>
+          Please quote this ID whenever communicating with our counselors.
+        </div>
+      </div>
+
+      {/* Call-To-Action Options */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '1rem',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          marginBottom: '2rem',
+        }}
+      >
+        <a
+          href={`tel:${cleanPhone}`}
+          className="btn btn-gold btn-lg"
+          style={{ minWidth: '220px' }}
+        >
+          📞 Call Now ({businessPhone})
+        </a>
+
+        <a
+          href={whatsAppLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-outline btn-lg"
+          style={{ minWidth: '220px' }}
+        >
+          💬 WhatsApp Us
+        </a>
+      </div>
+    </>
+  );
+}
+
+export default function RegistrationSuccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ regId?: string; name?: string }>;
+}) {
+  return (
+    <div style={{ padding: '4.5rem 0 6rem' }}>
       <div className="container container-narrow">
-        <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+        <div className="card" style={{ textAlign: 'center', padding: '3.5rem 2rem' }}>
+          {/* Success Check Icon */}
           <div
             style={{
-              width: '4rem',
-              height: '4rem',
+              width: '4.5rem',
+              height: '4.5rem',
               borderRadius: '50%',
               backgroundColor: 'var(--color-success-bg)',
               color: 'var(--color-success)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '2rem',
+              fontSize: '2.25rem',
               margin: '0 auto 1.5rem',
-              border: '1px solid var(--color-success-border)',
+              border: '2px solid var(--color-success-border)',
+              boxShadow: '0 4px 12px rgba(21, 128, 61, 0.15)',
             }}
           >
             ✓
           </div>
 
-          <h1
-            style={{
-              fontFamily: 'var(--font-serif)',
-              fontSize: '2rem',
-              color: 'var(--color-primary)',
-              marginBottom: '0.75rem',
-            }}
+          <span
+            className="badge badge-active"
+            style={{ marginBottom: '1rem', padding: '0.35rem 0.85rem' }}
           >
-            Registration Successfully Received
-          </h1>
+            Submission Confirmed
+          </span>
 
-          <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-            Thank you for registering with Achintya Matrimony. Your profile has been securely recorded. Our counseling team will review your preferences and get in touch with you shortly.
-          </p>
+          <Suspense fallback={<LoadingSpinner label="Loading your confirmation..." />}>
+            <SuccessDetails searchParams={searchParams} />
+          </Suspense>
 
+          {/* Next Steps Guidance */}
           <div
             style={{
-              backgroundColor: 'var(--color-surface-alt)',
-              padding: '1.25rem',
-              borderRadius: 'var(--radius-md)',
-              maxWidth: '360px',
-              margin: '0 auto 2rem',
-              border: '1px solid var(--color-border)',
+              borderTop: '1px solid var(--color-border-light)',
+              paddingTop: '2rem',
+              maxWidth: '520px',
+              margin: '0 auto',
+              textAlign: 'left',
             }}
           >
-            <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>
-              Your Registration Reference ID
-            </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)', letterSpacing: '0.05em' }}>
-              AM-XXXX (Sample)
-            </div>
+            <h3
+              style={{
+                fontSize: '0.9375rem',
+                fontWeight: 700,
+                marginBottom: '0.75rem',
+                color: 'var(--color-text-main)',
+                textAlign: 'center',
+              }}
+            >
+              What Happens Next?
+            </h3>
+            <ul
+              style={{
+                fontSize: '0.875rem',
+                color: 'var(--color-text-muted)',
+                lineHeight: 1.8,
+                paddingLeft: '1.25rem',
+              }}
+            >
+              <li>Our matchmaking team screens and validates the submitted profile details.</li>
+              <li>A counselor contacts you via phone or WhatsApp for an introductory conversation.</li>
+              <li>Curated matches tailored to your mutual partner preferences will be shared directly.</li>
+            </ul>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-            <a href="tel:+919876543210" className="btn btn-gold btn-lg">
-              📞 Call Now for Immediate Assistance
-            </a>
-            <Link href="/" className="btn btn-secondary btn-lg">
-              Return to Home
+          <div style={{ marginTop: '2.5rem' }}>
+            <Link href="/" className="nav-link" style={{ fontSize: '0.875rem' }}>
+              ← Return to Homepage
             </Link>
           </div>
         </div>
