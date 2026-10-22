@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config';
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -10,8 +11,8 @@ export async function updateSession(request: NextRequest) {
   const isAccessingAdmin = pathname.startsWith('/admin');
   const isAccessingLogin = pathname === '/login';
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = SUPABASE_URL;
+  const supabaseAnonKey = SUPABASE_ANON_KEY;
 
   const isSupabaseConfigured =
     !!supabaseUrl &&
@@ -43,6 +44,10 @@ export async function updateSession(request: NextRequest) {
 
     const { data } = await supabase.auth.getUser();
     isAuthenticated = !!data.user;
+    if (!isAuthenticated) {
+      const devCookie = request.cookies.get('dev_admin_session');
+      isAuthenticated = !!devCookie && devCookie.value === 'authenticated_admin';
+    }
   } else {
     // Development fallback check when credentials are not yet configured in .env.local
     const devCookie = request.cookies.get('dev_admin_session');

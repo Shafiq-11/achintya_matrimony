@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export const metadata = {
   title: 'Registration Confirmation | Achintya Matrimony',
@@ -16,10 +18,25 @@ async function SuccessDetails({
   const regId = params.regId || 'AM-CONFIRMED';
   const name = params.name || 'Member';
 
-  const businessPhone = '+919876543210';
+  let businessPhone = '+919876543210';
+  let businessName = 'Achintya Matrimony';
+
+  try {
+    const adminClient = createAdminClient();
+    const supabase = adminClient || (await createClient());
+    const { data: settings } = await supabase
+      .from('settings')
+      .select('business_phone, business_name')
+      .limit(1)
+      .maybeSingle();
+
+    if (settings?.business_phone) businessPhone = settings.business_phone;
+    if (settings?.business_name) businessName = settings.business_name;
+  } catch {}
+
   const cleanPhone = businessPhone.replace(/[^0-9+]/g, '');
   const whatsAppMessage = encodeURIComponent(
-    `Hello Achintya Matrimony, I have submitted my registration form (Registration ID: ${regId}, Name: ${name}). Please assist me with the next steps.`
+    `Hello ${businessName}, I have submitted my registration form (Registration ID: ${regId}, Name: ${name}). Please assist me with the next steps.`
   );
   const whatsAppLink = `https://wa.me/${cleanPhone.replace('+', '')}?text=${whatsAppMessage}`;
 
@@ -51,12 +68,14 @@ async function SuccessDetails({
       {/* Registration Reference Card */}
       <div
         style={{
-          backgroundColor: 'var(--color-surface-alt)',
-          border: '1px solid var(--color-border)',
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-gold-border)',
+          borderTop: '3px solid var(--color-gold)',
           borderRadius: 'var(--radius-lg)',
           padding: '1.5rem',
           maxWidth: '400px',
           margin: '0 auto 2.5rem',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div
@@ -109,7 +128,7 @@ async function SuccessDetails({
           href={whatsAppLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-outline btn-lg"
+          className="btn btn-whatsapp btn-lg"
           style={{ minWidth: '220px' }}
         >
           💬 WhatsApp Us

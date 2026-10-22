@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { devSampleMembers } from '@/lib/data/devSamples';
+import { hydrateMemberV2 } from '@/lib/utils/memberProfile';
 
 // Helper to compute age
 function getAgeFromDob(dobStr: string): number {
@@ -28,14 +31,9 @@ export async function GET(request: Request) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
     const limit = Math.max(1, parseInt(searchParams.get('limit') || '10', 10));
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const isSupabaseConfigured =
-      !!supabaseUrl &&
-      !supabaseUrl.includes('placeholder') &&
-      !supabaseUrl.includes('your-project-ref');
-
     if (isSupabaseConfigured) {
-      const supabase = await createClient();
+      const adminClient = createAdminClient();
+      const supabase = adminClient || (await createClient());
 
       let query = supabase.from('members').select('*', { count: 'exact' });
 
@@ -49,8 +47,17 @@ export async function GET(request: Request) {
         query = query.eq('gender', gender);
       }
 
-      if (status) {
+      if (status === 'matched') {
+        query = query.eq('profile_status', 'matched');
+      } else if (status === 'inactive') {
+        query = query.in('profile_status', ['inactive', 'archived']);
+      } else if (status === 'all' || status === 'all_records') {
+        // No status filter: return all records including matched and inactive
+      } else if (status) {
         query = query.eq('profile_status', status);
+      } else {
+        // Default directory view: exclude matched and inactive members
+        query = query.not('profile_status', 'in', '("matched","inactive","archived")');
       }
 
       // Age range filtering via DOB
@@ -85,10 +92,11 @@ export async function GET(request: Request) {
 
       const totalCount = count || 0;
       const totalPages = Math.ceil(totalCount / limit);
+      const hydratedMembers = (data || []).map((m) => hydrateMemberV2(m as Record<string, unknown>));
 
       return NextResponse.json({
         success: true,
-        members: data || [],
+        members: hydratedMembers,
         totalCount,
         page,
         totalPages: totalPages || 1,
@@ -96,7 +104,7 @@ export async function GET(request: Request) {
       });
     } else {
       // In-memory development mode filter & pagination
-      let filtered = [...devSampleMembers];
+      let filtered = devSampleMembers.map((m) => hydrateMemberV2(m as unknown as Record<string, unknown>));
 
       if (search) {
         filtered = filtered.filter(
@@ -112,8 +120,19 @@ export async function GET(request: Request) {
         filtered = filtered.filter((m) => m.gender === gender);
       }
 
-      if (status) {
+      if (status === 'matched') {
+        filtered = filtered.filter((m) => m.profile_status === 'matched');
+      } else if (status === 'inactive') {
+        filtered = filtered.filter((m) => m.profile_status === 'inactive' || m.profile_status === 'archived');
+      } else if (status === 'all' || status === 'all_records') {
+        // No status filter
+      } else if (status) {
         filtered = filtered.filter((m) => m.profile_status === status);
+      } else {
+        // Default: exclude matched and inactive
+        filtered = filtered.filter(
+          (m) => m.profile_status !== 'matched' && m.profile_status !== 'inactive' && m.profile_status !== 'archived'
+        );
       }
 
       if (minAge !== null) {
@@ -160,6 +179,14 @@ export async function GET(request: Request) {
       });
     }
   } catch (err: unknown) {
+    if (
+      typeof err === 'object' &&
+      err !== null &&
+      'digest' in err &&
+      typeof (err as { digest: unknown }).digest === 'string'
+    ) {
+      throw err;
+    }
     console.error('API /api/admin/members error:', err);
     return NextResponse.json(
       { error: 'Failed to retrieve members.' },

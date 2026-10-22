@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { devSampleFollowUps } from '@/lib/data/devSamples';
 
 export async function PATCH(
@@ -9,12 +12,6 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const isSupabaseConfigured =
-      !!supabaseUrl &&
-      !supabaseUrl.includes('placeholder') &&
-      !supabaseUrl.includes('your-project-ref');
 
     const updatePayload: Record<string, unknown> = {
       ...body,
@@ -28,7 +25,8 @@ export async function PATCH(
     }
 
     if (isSupabaseConfigured) {
-      const supabase = await createClient();
+      const adminClient = createAdminClient();
+      const supabase = adminClient || (await createClient());
 
       const { data: updated, error } = await supabase
         .from('follow_ups')
@@ -44,6 +42,14 @@ export async function PATCH(
           { status: 500 }
         );
       }
+
+      try {
+        revalidatePath('/admin');
+        revalidatePath('/admin/tasks');
+        if (updated?.member_id) {
+          revalidatePath(`/admin/members/${updated.member_id}`);
+        }
+      } catch {}
 
       return NextResponse.json({ success: true, task: updated });
     } else {

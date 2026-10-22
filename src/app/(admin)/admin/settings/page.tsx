@@ -1,19 +1,24 @@
+import { Suspense } from 'react';
 import { AdminTopBar } from '@/components/layout/AdminTopBar';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { AdminSettingsView } from '@/components/settings/AdminSettingsView';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
-export default function AdminSettingsPlaceholderPage() {
+export const metadata = {
+  title: 'Application Settings | Achintya Matrimony CRM',
+  description: 'Manage business identity, helpline phone, WhatsApp templates, and regional matchmaking settings.',
+};
+
+export default function AdminSettingsPage() {
   return (
     <>
       <AdminTopBar
         title="Application Settings"
-        subtitle="Manage business phone, WhatsApp templates, and operational preferences"
+        subtitle="Manage business identity, WhatsApp communication templates, and operational preferences"
       />
       <div className="admin-content">
-        <EmptyState
-          icon="⚙️"
-          title="CRM Settings Module"
-          description="Business details, editable WhatsApp message templates, and registration link configurations will be connected in Phase 04."
-        />
+        <Suspense fallback={<LoadingSpinner label="Loading application settings..." />}>
+          <AdminSettingsView />
+        </Suspense>
       </div>
     </>
   );

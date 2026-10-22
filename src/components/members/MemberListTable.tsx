@@ -2,12 +2,18 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { formatDate, calculateAge, buildWhatsAppLink, formatDisplayPhone } from '@/lib/utils/formatting';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { downloadExportFile } from '@/lib/utils/exportDownload';
 import type { Member, Gender, ProfileStatus } from '@/lib/types';
 
 export function MemberListTable() {
+  const searchParams = useSearchParams();
+  const rawStatus = searchParams.get('status');
+  const urlStatus: ProfileStatus | 'all' | '' = (rawStatus as ProfileStatus | 'all') || '';
+
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -15,7 +21,6 @@ export function MemberListTable() {
   // Filter and search state
   const [search, setSearch] = useState('');
   const [gender, setGender] = useState<Gender | ''>('');
-  const [status, setStatus] = useState<ProfileStatus | ''>('');
   const [minAge, setMinAge] = useState('');
   const [maxAge, setMaxAge] = useState('');
   const [sortBy, setSortBy] = useState('created_at');
@@ -24,6 +29,35 @@ export function MemberListTable() {
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+
+  const [statusOverride, setStatusOverride] = useState<ProfileStatus | 'all' | '' | null>(null);
+  const status: ProfileStatus | 'all' | '' = statusOverride !== null ? statusOverride : urlStatus;
+  const setStatus = useCallback((newStatus: ProfileStatus | 'all' | '') => {
+    setStatusOverride(newStatus);
+    setPage(1);
+  }, []);
+
+  const [exportingFormat, setExportingFormat] = useState<'xlsx' | 'csv' | null>(null);
+
+  const handleTriggerExport = (format: 'xlsx' | 'csv') => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const params = new URLSearchParams();
+    if (search.trim()) params.set('search', search.trim());
+    if (gender) params.set('gender', gender);
+    if (status) params.set('status', status);
+    params.set('format', format);
+
+    downloadExportFile({
+      url: `/api/admin/members/export?${params.toString()}`,
+      defaultFilename: `Achintya_Matrimony_Members_${todayStr}.${format}`,
+      onStart: () => setExportingFormat(format),
+      onSuccess: () => setExportingFormat(null),
+      onError: (err) => {
+        setExportingFormat(null);
+        alert(err);
+      },
+    });
+  };
 
   const fetchMembers = useCallback(async () => {
     setIsLoading(true);
@@ -86,19 +120,157 @@ export function MemberListTable() {
       {/* Search and Filters Toolbar Card */}
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <div className="card-body">
-          {/* Row 1: Search bar */}
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+          {/* Row 0: Directory Quick Switcher Tabs */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              marginBottom: '1.25rem',
+              flexWrap: 'wrap',
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '0.875rem',
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)', marginRight: '0.25rem' }}>
+              Directory View:
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setStatus('');
+                setPage(1);
+              }}
+              className={`btn btn-sm ${status === '' ? 'btn-primary' : 'btn-outline'}`}
+              style={{ borderRadius: '20px', padding: '0.35rem 0.85rem' }}
+              title="Shows all active prospective candidates (Matched and Inactive excluded)"
+            >
+              👥 Active Directory
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatus('matched');
+                setPage(1);
+              }}
+              className={`btn btn-sm ${status === 'matched' ? 'btn-primary' : 'btn-outline'}`}
+              style={{
+                borderRadius: '20px',
+                padding: '0.35rem 0.85rem',
+                borderColor: status === 'matched' ? undefined : '#be185d',
+                color: status === 'matched' ? undefined : '#be185d',
+              }}
+              title="Shows couples and profiles who have successfully matched"
+            >
+              💍 Matched Users
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatus('inactive');
+                setPage(1);
+              }}
+              className={`btn btn-sm ${status === 'inactive' ? 'btn-primary' : 'btn-outline'}`}
+              style={{ borderRadius: '20px', padding: '0.35rem 0.85rem' }}
+              title="Shows inactive or archived profiles"
+            >
+              ⏸️ Inactive Profiles
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatus('all');
+                setPage(1);
+              }}
+              className={`btn btn-sm ${status === 'all' ? 'btn-primary' : 'btn-outline'}`}
+              style={{ borderRadius: '20px', padding: '0.35rem 0.85rem' }}
+              title="Shows all accounts registered on the website (Active, Matched and Inactive)"
+            >
+              🌐 All Members (Total)
+            </button>
+          </div>
+
+          {/* Row 1: Search bar & Actions */}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ flex: '1 1 320px', position: 'relative' }}>
               <input
                 type="text"
                 className="form-input"
-                placeholder="🔍 Search by Name, Reg ID, Mobile (+91...), or City..."
+                placeholder="🔍 Search by Name, Reg ID, Mobile (+91...), Kulam, or City..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
               />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => handleTriggerExport('xlsx')}
+                disabled={exportingFormat !== null}
+                className="btn btn-outline-green btn-sm"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  whiteSpace: 'nowrap',
+                }}
+                title="Download verified records as compressed Excel spreadsheet (.xlsx)"
+              >
+                {exportingFormat === 'xlsx' ? (
+                  <>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: '0.75rem',
+                        height: '0.75rem',
+                        border: '2px solid var(--color-green)',
+                        borderTopColor: 'transparent',
+                        borderRadius: '50%',
+                        animation: 'spin 0.8s linear infinite',
+                      }}
+                    />
+                    <span>Exporting...</span>
+                  </>
+                ) : (
+                  <span>📥 Export XLSX</span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleTriggerExport('csv')}
+                disabled={exportingFormat !== null}
+                className="btn btn-outline btn-sm"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  whiteSpace: 'nowrap',
+                }}
+                title="Download universal UTF-8 CSV spreadsheet (.csv) compatible with all devices and spreadsheet apps"
+              >
+                {exportingFormat === 'csv' ? (
+                  <>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: '0.75rem',
+                        height: '0.75rem',
+                        border: '2px solid var(--color-primary)',
+                        borderTopColor: 'transparent',
+                        borderRadius: '50%',
+                        animation: 'spin 0.8s linear infinite',
+                      }}
+                    />
+                    <span>Exporting...</span>
+                  </>
+                ) : (
+                  <span>📄 Export CSV</span>
+                )}
+              </button>
             </div>
 
             {hasActiveFilters && (
@@ -108,7 +280,7 @@ export function MemberListTable() {
                 className="btn btn-secondary btn-sm"
                 style={{ alignSelf: 'center' }}
               >
-                ↺ Reset All Filters
+                ↺ Reset Filters
               </button>
             )}
           </div>
@@ -147,17 +319,18 @@ export function MemberListTable() {
                 style={{ fontSize: '0.875rem', padding: '0.5rem 0.75rem' }}
                 value={status}
                 onChange={(e) => {
-                  setStatus(e.target.value as ProfileStatus | '');
+                  setStatus(e.target.value as ProfileStatus | 'all' | '');
                   setPage(1);
                 }}
               >
-                <option value="">All Statuses</option>
+                <option value="">Active Directory (Default — Excludes Matched &amp; Inactive)</option>
+                <option value="matched">💍 Matched Only</option>
+                <option value="inactive">⏸️ Inactive Only</option>
+                <option value="all">🌐 All Records (Total Database)</option>
                 <option value="new">New</option>
                 <option value="active">Active</option>
                 <option value="contacted">Contacted</option>
                 <option value="shortlisted">Shortlisted</option>
-                <option value="matched">Matched</option>
-                <option value="inactive">Inactive</option>
                 <option value="archived">Archived</option>
               </select>
             </div>
@@ -219,8 +392,20 @@ export function MemberListTable() {
       {/* Results Header Info */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
-          Found <strong>{totalCount}</strong> member record{totalCount === 1 ? '' : 's'}
-          {hasActiveFilters && ' (filtered)'}
+          {status === '' ? (
+            <span>Showing <strong>{totalCount}</strong> active prospective candidates <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-light)' }}>(Matched &amp; Inactive excluded)</span></span>
+          ) : status === 'matched' ? (
+            <span>💍 Showing <strong>{totalCount}</strong> matched &amp; settled profiles</span>
+          ) : status === 'inactive' ? (
+            <span>⏸️ Showing <strong>{totalCount}</strong> inactive or archived accounts</span>
+          ) : status === 'all' ? (
+            <span>🌐 Showing <strong>{totalCount}</strong> total registered accounts (active, matched &amp; inactive)</span>
+          ) : (
+            <span>Found <strong>{totalCount}</strong> record{totalCount === 1 ? '' : 's'} with status &ldquo;{status}&rdquo;</span>
+          )}
+          {hasActiveFilters && status !== '' && status !== 'all' && (
+            <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-light)', marginLeft: '0.5rem' }}>• Filter active</span>
+          )}
         </div>
 
         <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-light)' }}>
@@ -299,7 +484,7 @@ export function MemberListTable() {
                           {member.full_name}
                         </Link>
                         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
-                          {age ? `${age} yrs` : '—'} • {member.marital_status}
+                          {age ? `${age} yrs` : '—'} • {member.marital_status} {member.kulam ? `• ${member.kulam}` : ''}
                         </div>
                       </td>
                       <td style={{ padding: '0.875rem 1rem' }}>
@@ -310,13 +495,13 @@ export function MemberListTable() {
                       <td style={{ padding: '0.875rem 1rem' }}>
                         <div style={{ fontWeight: 500 }}>{formatDisplayPhone(member.phone)}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                          📍 {member.location_city}, {member.location_state}
+                          📍 {member.place_of_living || member.location_city}, {member.location_state}
                         </div>
                       </td>
                       <td style={{ padding: '0.875rem 1rem' }}>
-                        <div style={{ fontWeight: 500 }}>{member.education}</div>
+                        <div style={{ fontWeight: 500 }}>{member.college_degree || member.education}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                          💼 {member.occupation || 'Not specified'}
+                          💼 {member.job_title || member.occupation || member.employment_status || 'Not specified'}
                         </div>
                       </td>
                       <td style={{ padding: '0.875rem 1rem' }}>
@@ -333,8 +518,8 @@ export function MemberListTable() {
                             href={whatsAppUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="btn btn-outline btn-sm"
-                            style={{ padding: '0.25rem 0.5rem', borderColor: '#25D366', color: '#128C7E' }}
+                            className="btn btn-outline-green btn-sm"
+                            style={{ padding: '0.25rem 0.5rem' }}
                             title="Chat on WhatsApp"
                           >
                             💬

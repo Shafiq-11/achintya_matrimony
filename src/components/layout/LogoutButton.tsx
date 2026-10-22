@@ -14,7 +14,7 @@ export function LogoutButton({ className = '', style }: { className?: string; st
       router.push('/login');
       router.refresh();
     } catch {
-      window.location.href = '/login';
+      router.replace('/login');
     }
   };
 

@@ -12,11 +12,20 @@ export function PublicFooter({
   return (
     <footer className="public-footer">
       <div className="container footer-content">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div className="brand-emblem" style={{ width: '1.75rem', height: '1.75rem', fontSize: '1rem' }}>
-            अ
-          </div>
-          <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/achintya-logo.jpg"
+            alt="Achintya Matrimony"
+            style={{
+              width: '2rem',
+              height: '2rem',
+              borderRadius: '50%',
+              border: '1.5px solid var(--color-gold)',
+              objectFit: 'cover',
+            }}
+          />
+          <span style={{ fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--color-primary)', fontSize: '1.0625rem', letterSpacing: '0.02em' }}>
             {businessName}
           </span>
         </div>

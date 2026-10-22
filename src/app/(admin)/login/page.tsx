@@ -21,18 +21,21 @@ export default function AdminLoginPage() {
     >
       <div style={{ width: '100%', maxWidth: '420px' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
-            className="brand-emblem"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/achintya-logo.jpg"
+            alt="Achintya Matrimony"
             style={{
-              width: '3.25rem',
-              height: '3.25rem',
-              fontSize: '1.6rem',
+              width: '4.5rem',
+              height: '4.5rem',
+              borderRadius: '50%',
+              border: '2.5px solid var(--color-gold)',
+              boxShadow: '0 4px 12px rgba(148, 27, 43, 0.2)',
               margin: '0 auto 1rem',
-              boxShadow: '0 4px 10px rgba(133, 20, 25, 0.2)',
+              display: 'block',
+              objectFit: 'cover',
             }}
-          >
-            अ
-          </div>
+          />
           <h1
             style={{
               fontFamily: 'var(--font-serif)',
@@ -48,7 +51,7 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        <div className="card">
+        <div className="card" style={{ borderTop: '3px solid var(--color-primary)' }}>
           <div className="card-body" style={{ padding: '2rem' }}>
             <Suspense fallback={<LoadingSpinner label="Loading login interface..." />}>
               <LoginForm />

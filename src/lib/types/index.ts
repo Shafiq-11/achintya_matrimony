@@ -53,6 +53,35 @@ export interface Member {
   registration_source: RegistrationSource;
   created_at: string;
   updated_at: string;
+
+  // Section A - Personal Details (V2)
+  siblings?: string | null;
+  kulam?: string | null;
+
+  // Section B - Education and Family (V2)
+  college_name?: string | null;
+  college_degree?: string | null;
+  school_name?: string | null;
+  education_other?: string | null;
+  parents_details?: string | null;
+  parents_origin?: string | null;
+  place_of_living?: string | null;
+
+  // Section C - Work and Financial Details (V2)
+  business_details?: string | null;
+  property_details?: string | null;
+  monthly_income?: number | string | null;
+  passive_income?: number | string | null;
+  passive_income_type?: 'monthly' | 'annual' | string | null;
+  employment_status?: string | null;
+  employer_name?: string | null;
+  job_title?: string | null;
+  salary_info?: string | null;
+  linkedin_url?: string | null;
+
+  // Section D - Health Information (V2 Sensitive)
+  health_info?: string | null;
+  health_consent_given?: boolean | null;
 }
 
 export interface Note {
@@ -88,26 +117,51 @@ export interface BusinessSettings {
   updated_at: string;
 }
 
-// Public Registration Form Submission Payload
+// Public Registration Form Submission Payload (V2 Sections A to D)
 export interface PublicRegistrationPayload {
+  // Section A: Personal Details
   full_name: string;
   gender: Gender;
   dob: string;
   phone: string;
   email?: string;
-  location_city: string;
-  location_state: string;
-  marital_status: MaritalStatus;
-  religion?: string;
-  caste?: string;
-  mother_tongue?: string;
-  height_cm?: number;
-  education: string;
-  occupation?: string;
-  annual_income?: string;
+  marital_status?: MaritalStatus;
+  siblings?: string;
+  kulam?: string;
+  height_cm?: number | string;
+
+  // Section B: Education and Family
+  college_name?: string;
+  college_degree?: string;
+  school_name?: string;
+  education_other?: string;
+  parents_details?: string;
+  parents_origin?: string;
+  place_of_living: string;
+  location_city?: string;
+  location_state?: string;
+
+  // Section C: Work and Financial Details
+  employment_status?: string;
+  employer_name?: string;
+  job_title?: string;
+  salary_info?: string;
+  business_details?: string;
+  property_details?: string;
+  monthly_income?: number | string;
+  passive_income?: number | string;
+  passive_income_type?: 'monthly' | 'annual' | string;
+  linkedin_url?: string;
+
+  // Section D: Health Information
+  health_info?: string;
+  health_consent_given?: boolean;
+
+  // Legacy / Common
   about_me?: string;
   partner_preferences?: string;
   consent_given: boolean;
+  website_trap?: string;
 }
 
 // Dashboard Summary Metrics

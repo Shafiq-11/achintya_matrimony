@@ -6,6 +6,34 @@ export default function HomePage() {
       <div className="container">
         {/* Hero Section */}
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto' }}>
+          {/* Official Brand Medallion */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.75rem' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/achintya-logo.jpg"
+              alt="Achintya Matrimony Crest"
+              style={{
+                width: '6.5rem',
+                height: '6.5rem',
+                borderRadius: '50%',
+                border: '3px solid var(--color-gold)',
+                boxShadow: '0 6px 16px rgba(148, 27, 43, 0.16)',
+                objectFit: 'cover',
+              }}
+            />
+          </div>
+
+          <div
+            className="badge badge-gold"
+            style={{
+              marginBottom: '1rem',
+              padding: '0.35rem 0.85rem',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
+            ⚜️ Traditional Values • Discerning Matchmaking
+          </div>
 
           <h1
             style={{
@@ -59,10 +87,10 @@ export default function HomePage() {
             marginTop: '5rem',
           }}
         >
-          <div className="card">
+          <div className="card" style={{ borderTop: '3px solid var(--color-gold)' }}>
             <div className="card-body">
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🔒</div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem', color: 'var(--color-primary)' }}>🔒</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
                 100% Privacy Assured
               </h3>
               <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem' }}>
@@ -71,10 +99,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card" style={{ borderTop: '3px solid var(--color-gold)' }}>
             <div className="card-body">
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🤝</div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem', color: 'var(--color-gold)' }}>🤝</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
                 Personalized Assistance
               </h3>
               <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem' }}>
@@ -83,10 +111,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card" style={{ borderTop: '3px solid var(--color-gold)' }}>
             <div className="card-body">
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📜</div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem', color: 'var(--color-green)' }}>📜</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
                 Verified Family Backgrounds
               </h3>
               <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem' }}>

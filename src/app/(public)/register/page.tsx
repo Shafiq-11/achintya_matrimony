@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { RegistrationForm } from '@/components/forms/RegistrationForm';
 import Link from 'next/link';
 
@@ -14,12 +15,10 @@ export default function RegisterPage() {
         {/* Header Introduction */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div
-            className="badge badge-primary"
+            className="badge badge-gold"
             style={{
               marginBottom: '1rem',
-              backgroundColor: 'var(--color-primary-light)',
-              color: 'var(--color-primary)',
-              borderColor: 'var(--color-primary-subtle)',
+              padding: '0.35rem 0.85rem',
             }}
           >
             📋 Prospective Member Registration
@@ -62,7 +61,40 @@ export default function RegisterPage() {
         </div>
 
         {/* Form Container */}
-        <RegistrationForm />
+        <Suspense
+          fallback={
+            <div
+              className="card card-premium"
+              style={{
+                padding: '3.5rem 2rem',
+                minHeight: '360px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                marginBottom: '2rem',
+              }}
+            >
+              <div
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  border: '3px solid var(--color-border)',
+                  borderTopColor: 'var(--color-primary)',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  marginBottom: '1rem',
+                }}
+              />
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', fontWeight: 500 }}>
+                Loading application form...
+              </p>
+            </div>
+          }
+        >
+          <RegistrationForm />
+        </Suspense>
 
         {/* Footer Reminder */}
         <div style={{ textAlign: 'center', fontSize: '0.8125rem', color: 'var(--color-text-light)' }}>

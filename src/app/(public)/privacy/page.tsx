@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
           Last updated: October 2026 • Achintya Matrimony
         </p>
 
-        <div className="card">
+        <div className="card" style={{ borderTop: '3px solid var(--color-gold)' }}>
           <div className="card-body" style={{ lineHeight: 1.8, fontSize: '0.9375rem', color: 'var(--color-text-main)' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem', color: 'var(--color-primary)' }}>
               1. Information We Collect

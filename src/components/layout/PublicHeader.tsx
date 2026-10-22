@@ -15,8 +15,15 @@ export function PublicHeader({
     <header className="public-header">
       <div className="container public-header-inner">
         <Link href="/" className="brand-logo" aria-label="Achintya Matrimony Home">
-          <div className="brand-emblem">अ</div>
-          <span>{businessName}</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/achintya-logo.jpg"
+            alt="Achintya Matrimony Crest"
+            className="brand-logo-img"
+          />
+          <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 700, letterSpacing: '0.02em', color: 'var(--color-primary)' }}>
+            {businessName}
+          </span>
         </Link>
 
 

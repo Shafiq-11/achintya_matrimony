@@ -1,23 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase/config';
 
 export async function POST() {
   try {
     const cookieStore = await cookies();
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
     const response = NextResponse.json({ success: true, redirectTo: '/login' });
 
-    const isSupabaseConfigured =
-      !!supabaseUrl &&
-      !!supabaseAnonKey &&
-      !supabaseUrl.includes('placeholder') &&
-      !supabaseUrl.includes('your-project-ref');
-
-    if (isSupabaseConfigured) {
-      const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    try {
+      const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         cookies: {
           getAll() {
             return cookieStore.getAll();
@@ -32,6 +24,8 @@ export async function POST() {
       });
 
       await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('Supabase signout notice:', e);
     }
 
     // Always clear dev session cookie if present
